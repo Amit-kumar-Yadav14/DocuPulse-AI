@@ -206,4 +206,4 @@ This project is licensed under the MIT License — see the [LICENSE](LICENSE) fi
 ## 👤 Author
 
 **Amit Kumar** — AI/ML Engineer  
-[GitHub](https://github.com/amitkumar-ai) · [LinkedIn](https://linkedin.com/in/amitkumar-ai)
+[GitHub]((https://github.com/Amit-kumar-Yadav14)) · [LinkedIn](www.linkedin.com/in/amit-kumar-yadav2112)
