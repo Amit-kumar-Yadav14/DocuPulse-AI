@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docupulse-ai-inference
+  labels:
+    app: docupulse-ai
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: docupulse-ai
+  template:
+    metadata:
+      labels:
+        app: docupulse-ai
+    spec:
+      containers:
+      - name: fastapi-rag-engine
+        image: amitkumarai/docupulse-ai:v1.0.0
+        ports:
+        - containerPort: 8000
+        env:
+        - name: MONGO_URI
+          valueFrom:
+            secretKeyRef:
+              name: docupulse-secrets
+              key: mongo-uri
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 15
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: docupulse-ai-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: docupulse-ai-inference
+  minReplicas: 2
+  maxReplicas: 8
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: docupulse-ai-service
+spec:
+  type: LoadBalancer
+  selector:
+    app: docupulse-ai
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 8000
